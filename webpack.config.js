@@ -22,7 +22,7 @@ module.exports = function(opts) {
             path: PROJECT_PATH.js + '/dist/',
             filename: 'bundle.[name].min.js',
             chunkFilename: 'bundle.[name].min.js',
-            jsonpFunction: 'InternalsearchWebpackJsonp',
+            jsonpFunction: 'InternalSearchWebpackJsonp',
         },
         plugins: [],
         externals: {

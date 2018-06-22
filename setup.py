@@ -7,7 +7,6 @@ INSTALL_REQUIREMENTS = [
     'Django>=1.8,<2.0',
     'django-cms>=3.4.2',
     'django-sekizai>=0.7',
-    'django-admin-sortable2>=0.6.4',
 ]
 
 

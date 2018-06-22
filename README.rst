@@ -22,8 +22,7 @@ Run::
 Add the following to your project's ``INSTALLED_APPS``:
 
   - ``'djangocms_internalsearch'``
-  - ``'adminsortable2'``
-
+ 
 Run::
 
     python manage.py migrate djangocms_internalsearch
