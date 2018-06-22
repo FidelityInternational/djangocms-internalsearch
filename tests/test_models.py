@@ -1,0 +1,242 @@
+import re
+from unittest.mock import MagicMock, patch
+
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.test import TestCase, override_settings
+
+from cms.api import create_page
+
+from djangocms_internalsearch import constants
+from djangocms_internalsearch.emails import notify_requested_moderator
+from djangocms_internalsearch.models import *
+
+from .utils import BaseTestCase
+
+
+class RoleTest(BaseTestCase):
+
+    def test_user_and_group_validation_error(self):
+        role = Role.objects.create(name='New Role 1', user=self.user, group=self.group,)
+        self.assertRaisesMessage(ValidationError, 'Can\'t pick both user and group. Only one.', role.clean)
+
+    def test_user_is_assigned(self):
+        # with user
+        role = Role.objects.create(name='New Role 1', user=self.user,)
+        self.assertTrue(role.user_is_assigned(self.user))
+        self.assertFalse(role.user_is_assigned(self.user2))
+        # with group
+        role = Role.objects.create(name='New Role 2', group=self.group,)
+        self.assertFalse(role.user_is_assigned(self.user))
+        self.assertTrue(role.user_is_assigned(self.user2))
+
+    def test_get_users_queryset(self):
+        # with user
+        role = Role.objects.create(name='New Role 1', user=self.user,)
+        self.assertQuerysetEqual(
+            role.get_users_queryset(), User.objects.filter(pk=self.user.pk), transform=lambda x: x, ordered=False)
+        # with group
+        role = Role.objects.create(name='New Role 2', group=self.group,)
+        self.assertQuerysetEqual(
+            role.get_users_queryset(), User.objects.filter(
+                pk__in=[self.user2.pk, self.user3.pk]
+            ), transform=lambda x: x, ordered=False
+        )
+
+
+class WorkflowTest(BaseTestCase):
+
+    def test_multiple_defaults_validation_error(self):
+        workflow = Workflow.objects.create(name='New Workflow 3', is_default=False,)
+        workflow.clean()
+        workflow = Workflow.objects.create(name='New Workflow 4', is_default=True,)  # self.wf1 is default
+        self.assertRaisesMessage(
+            ValidationError, 'Can\'t have two default workflows, only one is allowed.', workflow.clean
+        )
+
+    def test_first_step(self):
+        self.assertEqual(self.wf1.first_step, self.wf1st1)
+
+    @patch('djangocms_internalsearch.models.notify_requested_moderator')
+    def test_submit_new_request(self, mock_nrm):
+        request = self.wf1.submit_new_request(
+            by_user=self.user,
+            page=self.pg3,
+            language='en',
+            message='Some message',
+        )
+        self.assertQuerysetEqual(
+            request.actions.all(),
+            PageInternalsearchRequestAction.objects.filter(request=request),
+            transform=lambda x: x,
+            ordered=False,
+        )
+        mock_nrm.assert_called_once()
+
+
+class WorkflowStepTest(BaseTestCase):
+
+    def test_get_next(self):
+        self.assertEqual(self.wf1st1.get_next(), self.wf1st2)
+        self.assertEqual(self.wf1st2.get_next(), self.wf1st3)
+        self.assertIsNone(self.wf1st3.get_next())
+
+    def test_get_next_required(self):
+        self.assertEqual(self.wf1st1.get_next_required(), self.wf1st3)
+        self.assertEqual(self.wf1st2.get_next_required(), self.wf1st3)
+        self.assertIsNone(self.wf1st3.get_next_required())
+
+
+class PageInternalsearchRequestTest(BaseTestCase):
+
+    def test_has_pending_step(self):
+        self.assertTrue(self.Internalsearch_request1.has_pending_step)
+        self.assertFalse(self.Internalsearch_request2.has_pending_step)
+        self.assertTrue(self.Internalsearch_request3.has_pending_step)
+
+    def test_required_pending_steps(self):
+        self.assertTrue(self.Internalsearch_request1.has_required_pending_steps)
+        self.assertFalse(self.Internalsearch_request2.has_required_pending_steps)
+        self.assertFalse(self.Internalsearch_request3.has_required_pending_steps)
+
+    def test_is_approved(self):
+        self.assertFalse(self.Internalsearch_request1.is_approved)
+        self.assertTrue(self.Internalsearch_request2.is_approved)
+        self.assertTrue(self.Internalsearch_request3.is_approved)
+
+    def test_get_first_action(self):
+        self.assertEqual(self.Internalsearch_request2.get_first_action(), self.Internalsearch_request2.actions.first())
+
+    def test_get_last_action(self):
+        self.assertEqual(self.Internalsearch_request2.get_last_action(), self.Internalsearch_request2.actions.last())
+
+    def test_get_pending_steps(self):
+        self.assertQuerysetEqual(
+            self.Internalsearch_request3.get_pending_steps(),
+            WorkflowStep.objects.filter(pk__in=[self.wf3st2.pk]),
+            transform=lambda x: x,
+            ordered=False,
+        )
+
+    def test_get_pending_required_steps(self):
+        self.assertQuerysetEqual(
+            self.Internalsearch_request1.get_pending_required_steps(),
+            WorkflowStep.objects.filter(pk__in=[self.wf1st1.pk, self.wf1st3.pk]),
+            transform=lambda x: x,
+            ordered=False,
+        )
+        self.assertQuerysetEqual(
+            self.Internalsearch_request3.get_pending_required_steps(),
+            WorkflowStep.objects.none(),
+            transform=lambda x: x,
+            ordered=False,
+        )
+
+    def test_get_next_required(self):
+        self.assertEqual(self.Internalsearch_request1.get_next_required(), self.wf1st1)
+        self.assertIsNone(self.Internalsearch_request3.get_next_required())
+
+    def test_user_get_step(self):
+        self.assertIsNone(self.Internalsearch_request3.user_get_step(self.user))
+        self.assertEqual(self.Internalsearch_request3.user_get_step(self.user2), self.wf3st2)
+
+    def test_user_can_take_action(self):
+        temp_user = User.objects.create_superuser(username='temp', email='temp@temp.com', password='temp',)
+        self.assertFalse(self.Internalsearch_request1.user_can_take_action(temp_user))
+        self.assertFalse(self.Internalsearch_request3.user_can_take_action(self.user))
+        self.assertTrue(self.Internalsearch_request3.user_can_take_action(self.user2))
+
+    def test_user_can_moderate(self):
+        temp_user = User.objects.create_superuser(username='temp', email='temp@temp.com', password='temp',)
+        self.assertFalse(self.Internalsearch_request1.user_can_moderate(temp_user))
+        self.assertFalse(self.Internalsearch_request2.user_can_moderate(temp_user))
+        self.assertFalse(self.Internalsearch_request3.user_can_moderate(temp_user))
+
+        # check that it doesn't allow access to users that aren't part of this Internalsearch request
+        self.pg5 = create_page(title='Page 5', template='page.html', language='en',)
+        self.user4 = User.objects.create_superuser(username='test4', email='test4@test.com', password='test4',)
+        self.role4 = Role.objects.create(name='Role 4', user=self.user4,)
+        self.wf4 = Workflow.objects.create(pk=4, name='Workflow 4',)
+        self.wf4st1 = self.wf4.steps.create(role=self.role4, is_required=True, order=1,)
+        self.wf4st2 = self.wf4.steps.create(role=self.role1, is_required=False, order=2,)
+        self.Internalsearch_request4 = PageInternalsearchRequest.objects.create(
+            page=self.pg5, language='en', workflow=self.wf4, is_active=True,)
+        self.Internalsearch_request4.actions.create(by_user=self.user, action=constants.ACTION_STARTED,)
+
+        self.assertTrue(self.Internalsearch_request4.user_can_moderate(self.user))
+        self.assertFalse(self.Internalsearch_request4.user_can_moderate(self.user2))
+        self.assertFalse(self.Internalsearch_request4.user_can_moderate(self.user3))
+        self.assertTrue(self.Internalsearch_request4.user_can_moderate(self.user4))
+
+    @patch('djangocms_internalsearch.models.notify_request_author')
+    @patch('djangocms_internalsearch.models.notify_requested_moderator')
+    def test_update_status_action_approved(self, mock_nrm, mock_nra):
+        self.Internalsearch_request1.update_status(
+            action=constants.ACTION_APPROVED,
+            by_user=self.user,
+            message='Approved',
+        )
+        self.assertTrue(self.Internalsearch_request1.is_active)
+        self.assertEqual(len(self.Internalsearch_request1.actions.all()), 2)
+        mock_nrm.assert_called_once()
+        mock_nra.assert_called_once()
+
+    @patch('djangocms_internalsearch.models.notify_request_author')
+    @patch('djangocms_internalsearch.models.notify_requested_moderator')
+    def test_update_status_action_rejected(self, mock_nrm, mock_nra):
+        self.Internalsearch_request1.update_status(
+            action=constants.ACTION_REJECTED,
+            by_user=self.user,
+            message='Rejected',
+        )
+        self.assertFalse(self.Internalsearch_request1.is_active)
+        self.assertEqual(len(self.Internalsearch_request1.actions.all()), 2)
+
+    @patch('djangocms_internalsearch.models.generate_reference_number', return_value='8E339524-BA8f-4c32-aBab-75b7cf05b51c')
+    def test_reference_number(self, mock_uuid):
+        request = PageInternalsearchRequest.objects.create(
+            page=self.pg1,
+            language='en',
+            is_active=True,
+            workflow=self.wf1,
+        )
+        mock_uuid.assert_called_once()
+        self.assertEqual(request.reference_number, mock_uuid())
+
+
+class PageInternalsearchRequestActionTest(BaseTestCase):
+
+    def test_get_by_user_name(self):
+        action = self.Internalsearch_request3.actions.last()
+        self.assertEqual(action.get_by_user_name(), self.user.username)
+
+    def test_get_to_user_name(self):
+        action = self.Internalsearch_request3.actions.last()
+        self.assertEqual(action.get_to_user_name(), self.user2.username)
+
+    def test_save_when_to_user_passed(self):
+        new_action = self.Internalsearch_request1.actions.create(
+            by_user=self.user,
+            to_user=self.user2,
+            action=constants.ACTION_APPROVED,
+            step_approved=self.wf1st1,
+        )
+        self.assertEqual(new_action.to_role, self.role2)
+
+    def test_save_when_to_user_not_passed_and_action_started(self):
+        new_request = PageInternalsearchRequest.objects.create(
+            page=self.pg2,
+            language='en',
+            workflow=self.wf1,
+            is_active=True,
+        )
+        new_action = new_request.actions.create(by_user=self.user, action=constants.ACTION_STARTED,)
+        self.assertEqual(new_action.to_role, self.role1)
+
+    def test_save_when_to_user_not_passed_and_action_not_started(self):
+        new_action = self.Internalsearch_request1.actions.create(
+            by_user=self.user,
+            action=constants.ACTION_APPROVED,
+            step_approved=self.wf1st1,
+        )
+        self.assertEqual(new_action.to_role, self.role2)
