@@ -1,0 +1,27 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'djangocms_internalsearch/css/searchstyle.css' %}" />
+
+<h1>Plugins List</h1>
+<div class="SearchBar"></div>
+<form method="get" action="{% url 'searchdetail' %}">{% csrf_token %}
+    Search For Plugin:<input type="text" name="q" id="id_q" value="{{ query }}"/>
+    <input type="submit" class="submit" value="Search" />
+  </form>
+
+
+{% block content %}
+<h1>Plugins List</h1>
+
+{% if cmsplugin_list %}
+<ul>
+    {% for plugin in cmsplugin_list %}
+    <li>
+        <!---->
+        <a>{{ plugin.plugin_type }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no plugins</p>
+{% endif %}
+{% endblock %}
