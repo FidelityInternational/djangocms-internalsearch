@@ -23,10 +23,6 @@ Add the following to your project's ``INSTALLED_APPS``:
 
   - ``'djangocms_internalsearch'``
 
-Add following line in project level urls.py after 'url(r'^admin/', include(admin.site.urls)),'
-
-- ``url(r'^djangocms_internalsearch/', include('djangocms_internalsearch.urls')),``
-
 Run::
 
     python manage.py migrate djangocms_internalsearch
