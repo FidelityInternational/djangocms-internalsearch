@@ -22,6 +22,6 @@ class InternalsearchConfig(AppConfig):
         We call the generate class function here to 
         generate the model search indexes for haystack.
         '''
-        from .search_indexes import gen_classes
-        from cms.models import CMSPlugin
-        gen_classes(CMSPlugin)
+        #from .search_indexes import gen_classes
+        #from cms.models import CMSPlugin
+        #gen_classes(CMSPlugin)
