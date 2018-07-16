@@ -1,7 +1,7 @@
 from haystack import indexes
 from cms.models import Placeholder, Page
 
-#this_mod = globals()
+this_mod = globals()
 
 '''
 The below creates a class for haystack to index 
