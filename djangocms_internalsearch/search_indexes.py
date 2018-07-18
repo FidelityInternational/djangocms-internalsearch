@@ -1,5 +1,7 @@
 from haystack import indexes
 from cms.models import Placeholder, Page
+from types import ModuleType
+from functools import partial
 
 this_mod = globals()
 
@@ -38,26 +40,43 @@ apps.py file.
 #         return self.get_model().objects.all().values()
 
 
-def gen_classes(received_class):
+def gen_classes(model_list):
+
+    for model_class in model_list:
+
+
+
+
+        #def prepare_text(self, obj):
+        #    return "{}".format(obj.plugin_type)
+
+        index_class_name = model_class.__name__ + 'SearchIndex'
+        index_class_created = class_factory(index_class_name, model_class) #type(index_class_name, (indexes.SearchIndex, indexes.Indexable), index_class_dict)
+
+        this_mod[index_class_name] = index_class_created
+
+
+class BaseClass:
+    def __init__(self, class_type):
+        self._type = class_type
+
+
+def class_factory(name, model_class, BaseClass=BaseClass):
+
+    def __init__(self):
+        BaseClass.__init__(self, name)
 
     text = indexes.CharField(document=True)
 
     def get_model(self):
-        return received_class
+        return model_class
 
-    def prepare_text(self, obj):
-        return "{}".format(obj.plugin_type)
+    # def prepare_text(self, obj):
+    #    return "{}".format(obj.plugin_type)
 
-    klass_name = received_class.__name__+'SearchIndex'
-    klass_dict = {'text': text, 'get_model': get_model, 'prepare_text': prepare_text}
-    klass = type(klass_name, (indexes.SearchIndex, indexes.Indexable), klass_dict)
+    index_class_dict = {"__init__": __init__, "text": text, "get_model": get_model}
 
-    def klass__init(self):
-        super(klass, self).__init__()
+    new_class = type(name, (BaseClass, indexes.SearchIndex, indexes.Indexable), index_class_dict)
 
-    setattr(klass, "__init__", klass__init)
-    this_mod[klass_name] = klass
-
-
-
+    return new_class
 
