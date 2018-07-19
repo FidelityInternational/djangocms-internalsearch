@@ -1,0 +1,9 @@
+[
+  {
+    "pk": 1,
+    "model": "core.mockmodel",
+    "fields": {
+      "foo": "bar"
+    }
+  }
+]
