@@ -24,11 +24,11 @@ apps.py file.
 #     def get_model(self):
 #         return Page
 #
-#     #def index_queryset(self, using=None):
-#     #    return self.get_model().objects.all()
+#     def index_queryset(self, using=None):
+#         return self.get_model().objects.all()
 #
-#     #def prepare_placeholders(self, object):
-#     #    return [placeholders.slot for placeholders in object.placeholders.all()]
+#     def prepare_placeholders(self, object):
+#         return [placeholders.slot for placeholders in object.placeholders.all()]
 #
 #
 # class PlaceholderSearchIndex(indexes.SearchIndex, indexes.Indexable):
@@ -39,8 +39,8 @@ apps.py file.
 #     def get_model(self):
 #         return Placeholder
 #
-#     #def index_queryset(self, using=None):
-#     #    return self.get_model().objects.all()
+#     def index_queryset(self, using=None):
+#         return self.get_model().objects.all()
 #
 #
 # class CMSPluginSearchIndex(indexes.SearchIndex, indexes.Indexable):
@@ -55,21 +55,20 @@ apps.py file.
 def generate_search_index_classes(model_list):
 
     if not isinstance(model_list, Iterable):
-        raise ImproperlyConfigured("expects a list or tuple")
+        raise TypeError("expects a list or tuple")
 
     for model_class in model_list:
 
         if not inspect.isclass(model_class):
-            raise ImproperlyConfigured("not a class object")
+            raise TypeError("not a class object")
 
         index_class_name = model_class.__name__ + 'Index'
         index_class_created = class_factory(index_class_name, model_class)
-        # type(index_class_name, (indexes.SearchIndex, indexes.Indexable), index_class_dict)
 
         this_mod[index_class_name] = index_class_created
 
         if not inspect.isclass(index_class_created):
-            raise ImproperlyConfigured("not a object instance")
+            raise TypeError("not a object instance")
     return index_class_created
 
 

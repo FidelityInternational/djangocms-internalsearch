@@ -26,12 +26,12 @@ class ClassFactoryUnitTestCase(TestCase):
 
     def test_passing_just_string(self):
         test_str = 'CMSPlugin'
-        with self.assertRaises(ImproperlyConfigured):
+        with self.assertRaises(TypeError):
             generate_search_index_classes(test_str)
 
     def test_passing_string_list(self):
         test_str_list = ['CMSPlugin', 'Page']
-        with self.assertRaises(ImproperlyConfigured):
+        with self.assertRaises(TypeError):
             generate_search_index_classes(test_str_list)
 
     def test_passing_classes(self):
