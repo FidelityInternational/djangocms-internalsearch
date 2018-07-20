@@ -3,7 +3,6 @@ from cms.models import Placeholder, Page, CMSPlugin
 from types import ModuleType
 from functools import partial
 import inspect
-from django.core.exceptions import ImproperlyConfigured
 from collections import Iterable
 
 this_mod = globals()
@@ -15,20 +14,30 @@ apps.py file.
 '''
 
 
-# class PageSearchIndex(indexes.SearchIndex, indexes.Indexable):
+# class PageSearchIndex(indexes.ModelSearchIndex, indexes.Indexable):
 #
-#     text = indexes.CharField(document=True, use_template=True)
-#     created_by = indexes.CharField(model_attr="created_by")
+#     text = indexes.CharField(document=True, use_template=False)
+#     template = indexes.CharField(model_attr="template")
+#     # changed_date = indexes.CharField(model_attr="changed_date")
 #     # placeholders = indexes.MultiValueField()
 #
-#     def get_model(self):
-#         return Page
+#     class Meta:
+#         model = Page
 #
-#     def index_queryset(self, using=None):
-#         return self.get_model().objects.all()
+#     #def get_model(self):
+#     #    return Page
 #
-#     def prepare_placeholders(self, object):
-#         return [placeholders.slot for placeholders in object.placeholders.all()]
+#     # def index_queryset(self, using=None):
+#     #     return self.get_model().objects.all()
+#
+#     #def prepare_template(self, obj):
+#     #    return "{}".format(obj.template)
+#
+#     # def prepare_changed_date(self, obj):
+#     #     return "{}".format(obj.changed_date)[:10]
+#
+#     # def prepare_placeholders(self, object):
+#     #     return [placeholders.slot for placeholders in object.placeholders.all()]
 #
 #
 # class PlaceholderSearchIndex(indexes.SearchIndex, indexes.Indexable):

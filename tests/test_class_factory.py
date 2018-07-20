@@ -2,8 +2,10 @@ from django.test import TestCase
 from tests.mocks import MockSearchResult
 from tests.core.models import MockModel
 from djangocms_internalsearch.search_indexes import generate_search_index_classes
-from django.core.exceptions import ImproperlyConfigured
-from cms.models import CMSPlugin, Page
+from djangocms_internalsearch.test_utils.app_2_with_search_cms_config.models import (
+    TestModel1,
+    TestModel2,
+)
 
 
 class SearchResultTestCase(TestCase):
@@ -35,6 +37,9 @@ class ClassFactoryUnitTestCase(TestCase):
             generate_search_index_classes(test_str_list)
 
     def test_passing_classes(self):
-        test_class_list = [CMSPlugin, Page]
+        test_class_list = [TestModel1, TestModel2]
         instance_of_class = generate_search_index_classes(test_class_list)
         self.assertTrue(isinstance(instance_of_class, object))
+
+
+

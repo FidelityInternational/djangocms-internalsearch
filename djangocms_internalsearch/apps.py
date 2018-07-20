@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 from .handlers import do_search_action
 
 
-
 class InternalsearchConfig(AppConfig):
     name = 'djangocms_internalsearch'
     verbose_name = _('django CMS Internal Search')
@@ -28,5 +27,5 @@ class InternalsearchConfig(AppConfig):
         from djangocms_text_ckeditor.models import Text
         class_list = [CMSPlugin, Page, Placeholder, Text]
         generate_search_index_classes(class_list)
-        #from .search_fields import generate_factory_classes
-        #generate_factory_classes()
+        # from .search_fields import generate_factory_classes
+        # generate_factory_classes()
