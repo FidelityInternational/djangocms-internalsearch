@@ -11,3 +11,4 @@ build/
 .python-version
 .coverage
 .vscode
+djangocms_internalsearch/djangocms-moderation
