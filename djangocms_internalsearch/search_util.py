@@ -9,11 +9,10 @@ from django.core.exceptions import ImproperlyConfigured
 from djangocms_internalsearch import cms_config
 from cms.models import CMSPlugin, Page
 from cms.models import pluginmodel
-
+from djangocms_text_ckeditor.models import Text
 
 
 def create_search_index_for_haystack(model_list):
-
 
     # #model_list = cms_config.InternalSearchCMSExtension().internalsearch_models
     #
@@ -33,7 +32,6 @@ def create_search_index_for_haystack(model_list):
 
     #model = model_list_local[0]
     class_created = class_factory('PageSearchIndex')
-    import pdb; pdb.set_trace()
     instance_of_factory_class = class_created()
     instance_of_factory_class.text = indexes.CharField(document=True)
 
@@ -54,8 +52,6 @@ def create_search_index_for_haystack(model_list):
     #print('list of fields %s' % model_fields_list)
     #model_field_type = model_obj._meta.get_field(model_fields_list[-1]).get_internal_type()
     #print('model field type %s' % model_field_type)
-    #class_created.text = indexes.CharField(document=True)
-    #class_created.
 
     return class_created
 
@@ -91,4 +87,11 @@ def duplicate_class_factory(name, parent,  DuplicateBaseClass=DuplicateBaseClass
 
 def get_model(model_name):
     return getattr(sys.modules[__name__], model_name)
+
+
+#if not isinstance(index_class_created(), index_class_created):
+    #    raise TypeError('created class is not of type <model>SearchIndex class')
+
+    #if not (issubclass(index_class_created, indexes.SearchIndex) or issubclass(index_class_created, indexes.Indexable)):
+    #    raise TypeError('generated type must be a class type')
 

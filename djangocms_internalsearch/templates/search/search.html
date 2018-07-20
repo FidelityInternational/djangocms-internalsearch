@@ -7,7 +7,7 @@
         <table>
             {{ form.as_table }}
             <tr>
-                <td>&nbsp;</td>
+                <td>&nbsp</td>
                 <td>
                     <input type="submit" value="Search">
                 </td>
@@ -16,12 +16,20 @@
 
         {% if query %}
             <h3>Results</h3>
-
             {% for result in page.object_list %}
-                <p>
-                    <!--<a href="{{ result.object.get_absolute_url }}"> {{ result.object.plugin_type }} </a>-->
+                <p></p>
+                {% ifequal result.model_name 'page' %}
+                    {{ result.object.created_by }}
+                {% endifequal %}
+                {% ifequal result.model_name 'placeholder' %}
+                    {{ result.object.slot }}
+                {% endifequal %}
+                {% ifequal result.model_name 'cmsplugin' %}
                     {{ result.object.plugin_type }}
-                </p>
+                {% endifequal %}
+                {% ifequal result.model_name 'text' %}
+                    {{ result.object.body }}
+                {% endifequal %}
             {% empty %}
                 <p>No results found.</p>
             {% endfor %}

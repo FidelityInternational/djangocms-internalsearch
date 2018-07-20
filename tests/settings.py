@@ -5,7 +5,7 @@ HELPER_SETTINGS = {
         'djangocms_internalsearch.test_utils.app_2_with_search_cms_config',
         'haystack',
         'tests.core',
-
+        'djangocms_text_ckeditor',
     ],
 
     'HAYSTACK_CONNECTIONS': {
