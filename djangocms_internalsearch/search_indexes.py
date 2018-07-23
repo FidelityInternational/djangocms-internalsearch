@@ -21,12 +21,12 @@ def generate_search_index_classes(model_list):
         if not inspect.isclass(model):
             raise TypeError("model is not a class object")
 
-        index_class_name = model.__name__ + 'Index'
-        index_class_created = class_factory(index_class_name, model)
+        index_name = model.__name__ + 'Index'
+        index_created = class_factory(index_name, model)
 
-        this_mod[index_class_name] = index_class_created
+        this_mod[index_name] = index_created
 
-        if not inspect.isclass(index_class_created):
+        if not inspect.isclass(index_created):
             raise TypeError("created index_class_created is not a object instance")
 
 
