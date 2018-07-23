@@ -24,9 +24,8 @@ class InternalsearchConfig(AppConfig):
         generate the model search indexes for haystack.
         '''
         from .search_indexes import generate_search_index_classes
-        from cms.models import CMSPlugin, Page, Placeholder
         from djangocms_text_ckeditor.models import Text
-        class_list = [CMSPlugin, Page, Placeholder, Text]
+        class_list = [Text]
         generate_search_index_classes(class_list)
 
 

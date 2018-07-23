@@ -2,10 +2,11 @@ from django.test import TestCase
 from tests.mocks import MockSearchResult
 from tests.core.models import MockModel
 from djangocms_internalsearch.search_indexes import generate_search_index_classes
-from djangocms_internalsearch.test_utils.app_2_with_search_cms_config.models import (
+from djangocms_internalsearch.test_utils.app_2.models import (
     TestModel1,
     TestModel2,
 )
+from cms import app_registration
 
 
 class SearchResultTestCase(TestCase):
@@ -25,6 +26,10 @@ class SearchResultTestCase(TestCase):
 
 
 class ClassFactoryUnitTestCase(TestCase):
+
+    def setUp(self):
+        app_registration.get_cms_extension_apps.cache_clear()
+        app_registration.get_cms_config_apps.cache_clear()
 
     def test_passing_just_string(self):
         test_str = 'CMSPlugin'

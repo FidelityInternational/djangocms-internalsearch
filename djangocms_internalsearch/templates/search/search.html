@@ -17,7 +17,7 @@
         {% if query %}
             <h3>Results</h3>
             {% for result in page.object_list %}
-                {{ result.object.template }}
+                {{ result.object.body }}
             {% empty %}
                 <p>No results found...</p>
             {% endfor %}
