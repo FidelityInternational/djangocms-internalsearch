@@ -1,6 +1,8 @@
-from haystack import indexes
 import inspect
 from collections import Iterable
+
+from haystack import indexes
+
 
 this_mod = globals()
 
@@ -28,7 +30,6 @@ def generate_search_index_classes(model_list):
 
         if not inspect.isclass(index_class_created):
             raise TypeError("not a object instance")
-    return index_class_created
 
 
 class BaseClass:
@@ -50,4 +51,3 @@ def class_factory(name, model_class, BaseClass=BaseClass):
     new_class = type(name, (BaseClass, indexes.SearchIndex, indexes.Indexable), index_class_dict)
 
     return new_class
-

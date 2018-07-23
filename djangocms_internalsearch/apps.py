@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.utils.translation import ugettext_lazy as _
 
 from .handlers import update_index
@@ -24,9 +24,6 @@ class InternalsearchConfig(AppConfig):
         generate the model search indexes for haystack.
         '''
         from .search_indexes import generate_search_index_classes
-        from djangocms_text_ckeditor.models import Text
-        class_list = [Text]
-        generate_search_index_classes(class_list)
-
-
-
+        internalsearch_config = apps.get_app_config('djangocms_internalsearch')
+        model_list = internalsearch_config.cms_extension.internalsearch_models
+        generate_search_index_classes(model_list)
