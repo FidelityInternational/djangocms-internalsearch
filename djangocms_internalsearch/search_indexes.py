@@ -1,7 +1,4 @@
 from haystack import indexes
-from cms.models import Placeholder, Page, CMSPlugin
-from types import ModuleType
-from functools import partial
 import inspect
 from collections import Iterable
 
@@ -12,53 +9,6 @@ The below creates a class for haystack to index
 particular model which we have passed in our 
 apps.py file.
 '''
-
-
-# class PageSearchIndex(indexes.ModelSearchIndex, indexes.Indexable):
-#
-#     text = indexes.CharField(document=True, use_template=False)
-#     template = indexes.CharField(model_attr="template")
-#     # changed_date = indexes.CharField(model_attr="changed_date")
-#     # placeholders = indexes.MultiValueField()
-#
-#     class Meta:
-#         model = Page
-#
-#     #def get_model(self):
-#     #    return Page
-#
-#     # def index_queryset(self, using=None):
-#     #     return self.get_model().objects.all()
-#
-#     #def prepare_template(self, obj):
-#     #    return "{}".format(obj.template)
-#
-#     # def prepare_changed_date(self, obj):
-#     #     return "{}".format(obj.changed_date)[:10]
-#
-#     # def prepare_placeholders(self, object):
-#     #     return [placeholders.slot for placeholders in object.placeholders.all()]
-#
-#
-# class PlaceholderSearchIndex(indexes.SearchIndex, indexes.Indexable):
-#
-#     text = indexes.CharField(document=True, use_template=True)
-#     slot = indexes.CharField(model_attr="slot")
-#
-#     def get_model(self):
-#         return Placeholder
-#
-#     def index_queryset(self, using=None):
-#         return self.get_model().objects.all()
-#
-#
-# class CMSPluginSearchIndex(indexes.SearchIndex, indexes.Indexable):
-#
-#     text = indexes.CharField(document=True, use_template=True)
-#     plugin_type = indexes.CharField(model_attr="plugin_type")
-#
-#     def get_model(self):
-#         return CMSPlugin
 
 
 def generate_search_index_classes(model_list):
