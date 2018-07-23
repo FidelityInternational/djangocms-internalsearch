@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.apps import AppConfig
 from django.utils.translation import ugettext_lazy as _
 
-from .handlers import do_search_action
+from .handlers import update_index
 
 
 class InternalsearchConfig(AppConfig):
@@ -16,8 +16,9 @@ class InternalsearchConfig(AppConfig):
             post_placeholder_operation
         )
 
-        post_obj_operation.connect(do_search_action)
-        post_placeholder_operation.connect(do_search_action)
+        post_obj_operation.connect(update_index)
+        post_placeholder_operation.connect(update_index)
+
         '''
         We call the generate class function here to 
         generate the model search indexes for haystack.
@@ -27,5 +28,6 @@ class InternalsearchConfig(AppConfig):
         from djangocms_text_ckeditor.models import Text
         class_list = [CMSPlugin, Page, Placeholder, Text]
         generate_search_index_classes(class_list)
-        # from .search_fields import generate_factory_classes
-        # generate_factory_classes()
+
+
+
