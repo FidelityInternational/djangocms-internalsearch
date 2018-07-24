@@ -43,14 +43,8 @@ class InternalSearchIntegrationTestCase(CMSTestCase):
         setup_cms_apps()
         internalsearch_config = apps.get_app_config('djangocms_internalsearch')
         model_list = internalsearch_config.cms_extension.internalsearch_models
+
         generate_search_index_classes(model_list)
-        from djangocms_internalsearch.search_indexes import (
-            TestModel1Index,
-            TestModel2Index,
-            TestModel3Index,
-            TestModel4Index,
-        )
+
+        from djangocms_internalsearch.search_indexes import TestModel1Index
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
-        self.assertEqual(TestModel2Index.__name__, 'TestModel2Index')
-        self.assertEqual(TestModel3Index.__name__, 'TestModel3Index')
-        self.assertEqual(TestModel4Index.__name__, 'TestModel4Index')

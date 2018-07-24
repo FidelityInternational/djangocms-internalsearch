@@ -28,22 +28,14 @@ def generate_search_index_classes(model_list):
             raise TypeError("Created search index is not a object instance")
 
 
-class BaseClass:
-    def __init__(self, name):
-        self._type = name
+def class_factory(name, model):
 
-
-def class_factory(name, model, BaseClass=BaseClass):
-
-    text = indexes.CharField(document=True, use_template=True)
-
-    def __init__(self):
-        BaseClass.__init__(self, name)
+    text = indexes.CharField(document=True)
 
     def get_model(self):
         return model
 
-    index_class_dict = {"__init__": __init__, "text": text, "get_model": get_model}
-    new_class = type(name, (BaseClass, indexes.SearchIndex, indexes.Indexable), index_class_dict)
+    index_class_dict = {"text": text, "get_model": get_model}
+    new_class = type(name, (indexes.SearchIndex, indexes.Indexable), index_class_dict)
 
     return new_class
