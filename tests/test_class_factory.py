@@ -8,9 +8,13 @@ from cms.utils.setup import setup_cms_apps
 from djangocms_internalsearch.search_indexes import (
     generate_search_index_classes,
 )
-from djangocms_internalsearch.test_utils.app_2.models import (
-    TestModel1,
-    TestModel2,
+from djangocms_internalsearch.test_utils.app_2.cms_config import (
+    TestModel1Config,
+    TestModel2Config,
+)
+from djangocms_internalsearch.test_utils.app_1.cms_config import (
+    TestModel3Config,
+    TestModel4Config,
 )
 
 
@@ -27,7 +31,7 @@ class ClassFactoryUnitTestCase(TestCase):
             generate_search_index_classes(test_str_list)
 
     def test_passing_classes(self):
-        test_class_list = [TestModel1, TestModel2]
+        test_class_list = [TestModel1Config.model, TestModel2Config.model]
         generate_search_index_classes(test_class_list)
         from djangocms_internalsearch.search_indexes import TestModel1Index
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
@@ -42,9 +46,9 @@ class InternalSearchIntegrationTestCase(CMSTestCase):
     def test_config_with_two_apps(self):
         setup_cms_apps()
         internalsearch_config = apps.get_app_config('djangocms_internalsearch')
-        model_list = internalsearch_config.cms_extension.internalsearch_models
+        registered_model = internalsearch_config.cms_extension.internalsearch_models
 
-        generate_search_index_classes(model_list)
+        generate_search_index_classes(registered_model)
 
         from djangocms_internalsearch.search_indexes import TestModel1Index
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
