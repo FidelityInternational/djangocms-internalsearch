@@ -3,6 +3,7 @@ try:
 except ImportError:
     raise "InternalSearch app requires Python 3.3 or above"
 
+
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 
@@ -48,18 +49,18 @@ class InternalSearchUnitTestCase(CMSTestCase, TestCase):
 
     def test_valid_cms_config_parameter(self):
         extensions = InternalSearchCMSExtension()
-
         cms_config = Mock(
             djangocms_internalsearch_enabled=True,
             search_models=[TestModel1, TestModel2, TestModel3, TestModel4],
-            app_config=Mock(label='blah_cms_config'))
+            app_config=Mock(label='blah_cms_config')
+        )
 
-        extensions.configure_app(cms_config)
-
-        self.assertTrue(TestModel1 in extensions.internalsearch_models)
-        self.assertTrue(TestModel2 in extensions.internalsearch_models)
-        self.assertTrue(TestModel3 in extensions.internalsearch_models)
-        self.assertTrue(TestModel4 in extensions.internalsearch_models)
+        with self.assertNotRaises(ImproperlyConfigured):
+            extensions.configure_app(cms_config)
+            self.assertTrue(TestModel1 in extensions.internalsearch_models)
+            self.assertTrue(TestModel2 in extensions.internalsearch_models)
+            self.assertTrue(TestModel3 in extensions.internalsearch_models)
+            self.assertTrue(TestModel4 in extensions.internalsearch_models)
 
 
 class InternalSearchIntegrationTestCase(CMSTestCase):

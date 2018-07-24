@@ -14,12 +14,12 @@ def generate_search_index_classes(model_list):
     apps.py file.
     """
     if not isinstance(model_list, Iterable):
-        raise TypeError("generate_search_index_classes expects a list or tuple")
+        raise TypeError("Generate method expects a list or tuple")
 
     for model in model_list:
 
         if not inspect.isclass(model):
-            raise TypeError("model is not a class object")
+            raise TypeError("Model is not a class object")
 
         index_name = model.__name__ + 'Index'
         index_created = class_factory(index_name, model)
@@ -27,7 +27,7 @@ def generate_search_index_classes(model_list):
         this_mod[index_name] = index_created
 
         if not inspect.isclass(index_created):
-            raise TypeError("created index_class_created is not a object instance")
+            raise TypeError("Created index_class_created is not a object instance")
 
 
 class BaseClass:

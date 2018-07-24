@@ -19,10 +19,9 @@ class InternalsearchConfig(AppConfig):
         post_obj_operation.connect(update_index)
         post_placeholder_operation.connect(update_index)
 
-        '''
-        We call the generate class function here to 
-        generate the model search indexes for haystack.
-        '''
+        """
+        We call the generate class function here to generate the model search indexes for haystack.
+        """
         from .search_indexes import generate_search_index_classes
         internalsearch_config = apps.get_app_config('djangocms_internalsearch')
         model_list = internalsearch_config.cms_extension.internalsearch_models

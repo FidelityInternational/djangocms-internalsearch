@@ -10,7 +10,6 @@ INSTALL_REQUIREMENTS = [
     'elasticsearch>=2.0.0,<3.0.0'
 ]
 
-
 setup(
     name='djangocms-internalsearch',
     packages=find_packages(),
