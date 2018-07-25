@@ -4,7 +4,7 @@ from collections import Iterable
 from haystack import indexes
 
 
-this_mod = locals()
+this_module = globals()
 
 
 def generate_search_index_classes(model_list):
@@ -20,11 +20,11 @@ def generate_search_index_classes(model_list):
             raise TypeError("Model is not a class object")
 
         index_name = model.__name__ + 'Index'
-        index_created = class_factory(index_name, model)
+        search_index = class_factory(index_name, model)
 
-        this_mod[index_name] = index_created
+        this_module[index_name] = search_index
 
-        if not inspect.isclass(index_created):
+        if not inspect.isclass(search_index):
             raise TypeError("Created search index is not a object instance")
 
 

@@ -12,10 +12,6 @@ from djangocms_internalsearch.test_utils.app_2.cms_config import (
     TestModel1Config,
     TestModel2Config,
 )
-from djangocms_internalsearch.test_utils.app_1.cms_config import (
-    TestModel3Config,
-    TestModel4Config,
-)
 
 
 class ClassFactoryUnitTestCase(TestCase):
@@ -50,5 +46,8 @@ class InternalSearchIntegrationTestCase(CMSTestCase):
 
         generate_search_index_classes(registered_model)
 
-        from djangocms_internalsearch.search_indexes import TestModel1Index
+        try:
+            from djangocms_internalsearch.search_indexes import TestModel1Index
+        except ImportError:
+            self.fail("Generating of the Search Index class failed")
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
