@@ -32,7 +32,6 @@ class ClassFactoryUnitTestCase(TestCase):
         from djangocms_internalsearch.search_indexes import TestModel1Index
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
 
-
 class InternalSearchIntegrationTestCase(CMSTestCase):
 
     def setUp(self):
@@ -49,5 +48,4 @@ class InternalSearchIntegrationTestCase(CMSTestCase):
         try:
             from djangocms_internalsearch.search_indexes import TestModel1Index
         except ImportError:
-            self.fail("Generating of the Search Index class failed")
-        self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
+            self.fail("Cannot import the created class")

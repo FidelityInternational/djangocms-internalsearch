@@ -4,12 +4,9 @@ from collections import Iterable
 from haystack import indexes
 
 
-this_module = globals()
-
-
 def generate_search_index_classes(model_list):
 
-    # The below creates a class for haystack to index particular model which we have passed in our apps.py file.
+    # The below creates classes for haystack to index particular model which we have passed in our apps.py file.
 
     if not isinstance(model_list, Iterable):
         raise TypeError("Generate method expects a list or tuple")
@@ -19,13 +16,13 @@ def generate_search_index_classes(model_list):
         if not inspect.isclass(model):
             raise TypeError("Model is not a class object")
 
-        index_name = model.__name__ + 'Index'
-        search_index = class_factory(index_name, model)
+        class_name = model.__name__ + 'Index'
+        search_index_class = class_factory(class_name, model)
 
-        this_module[index_name] = search_index
+        globals()[class_name] = search_index_class
 
-        if not inspect.isclass(search_index):
-            raise TypeError("Created search index is not a object instance")
+        if not inspect.isclass(search_index_class):
+            raise TypeError("Created search index is not a class")
 
 
 def class_factory(name, model):
