@@ -23,4 +23,6 @@ class InternalsearchConfig(AppConfig):
         from .search_indexes import create_indexes
         internalsearch_config = apps.get_app_config('djangocms_internalsearch')
         model_list = internalsearch_config.cms_extension.internalsearch_models
-        create_indexes(model_list)
+        #create_indexes(model_list)
+        from .cms_config import PageModelConfig
+        create_indexes([PageModelConfig])

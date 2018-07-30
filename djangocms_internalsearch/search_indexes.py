@@ -16,7 +16,7 @@ def create_indexes(model_list):
         if not inspect.isclass(model):
             raise TypeError("Model is not a class object")
 
-        class_name = model.__name__ + 'Index'
+        class_name = model.model.__name__ + 'Index'
         search_index_class = class_factory(class_name, model)
 
         globals()[class_name] = search_index_class
@@ -28,12 +28,18 @@ def create_indexes(model_list):
 def class_factory(name, model):
     text = indexes.CharField(document=True)
 
-    # TODO; need to add custom fields for models
-
     def get_model(self):
         return model
 
     index_class_dict = {"text": text, "get_model": get_model}
+
+    for field in model.model._meta.get_fields():
+        if field.name in model.fields:
+            index_class_dict["%s" % field.name] = (indexes.index_field_from_django_field(field)(model_attr='%s' % field.name))
+
+        else:
+            index_class_dict["%s" % field.name] = indexes.CharField(model_attr='%s' % field.name)
+
     new_class = type(name,
                      (indexes.SearchIndex, indexes.Indexable),
                      index_class_dict
