@@ -4,44 +4,37 @@ from collections import Iterable
 from haystack import indexes
 
 
-def create_indexes(model_list):
+def create_indexes(model_config_list):
     """
     The below creates classes for haystack to index particular
     model which we have passed in our apps.py file.
     """
-    if not isinstance(model_list, Iterable):
-        raise TypeError("Generate method expects a list or tuple")
 
-    for model in model_list:
-        if not inspect.isclass(model):
-            raise TypeError("Model is not a class object")
+    for config in model_config_list:
 
-        class_name = model.model.__name__ + 'Index'
-        search_index_class = class_factory(class_name, model)
+        class_name = config.model.__name__ + 'Index'
+        search_index_class = class_factory(class_name, config)
 
         globals()[class_name] = search_index_class
 
-        if not inspect.isclass(search_index_class):
-            raise TypeError("Created search index is not a class")
 
-
-def class_factory(name, model):
+def class_factory(name, config):
     text = indexes.CharField(document=True)
 
     def get_model(self):
-        return model
+        return config.model
 
     index_class_dict = {"text": text, "get_model": get_model}
 
-    for field in model.model._meta.get_fields():
-        if field.name in model.fields:
-            index_class_dict["%s" % field.name] = (indexes.index_field_from_django_field(field)(model_attr='%s' % field.name))
+    if config.index is None:
+        for field in config.model._meta.get_fields():
+            if field.name in config.fields:
+                index_class_dict['%s' % field.name] = indexes.index_field_from_django_field(field)(model_attr='%s' % field.name)
 
-        else:
-            index_class_dict["%s" % field.name] = indexes.CharField(model_attr='%s' % field.name)
+    new_class = type(
+        name,
+        (indexes.SearchIndex, indexes.Indexable),
+        index_class_dict
+    )
 
-    new_class = type(name,
-                     (indexes.SearchIndex, indexes.Indexable),
-                     index_class_dict
-                     )
     return new_class
