@@ -1,5 +1,5 @@
-import inspect
-from collections import Iterable
+from django.core.exceptions import FieldDoesNotExist
+
 
 from haystack import indexes
 
@@ -27,9 +27,18 @@ def class_factory(name, config):
     index_class_dict = {"text": text, "get_model": get_model}
 
     if config.index is None:
-        for field in config.model._meta.get_fields():
-            if field.name in config.fields:
-                index_class_dict['%s' % field.name] = indexes.index_field_from_django_field(field)(model_attr='%s' % field.name)
+        for field in config.fields:
+            f = None
+            try:
+                f = config.model._meta.get_field(field)
+            except FieldDoesNotExist:
+                raise
+            if f:
+                index_class_dict[f.name] = indexes.index_field_from_django_field(f)(
+                    model_attr=f.name)
+    else:
+        # TODO; add the fields we get from config
+        pass
 
     new_class = type(
         name,

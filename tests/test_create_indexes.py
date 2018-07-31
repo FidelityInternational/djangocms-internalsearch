@@ -1,3 +1,5 @@
+from django.core.exceptions import FieldDoesNotExist
+
 from cms import app_registration
 from cms.test_utils.testcases import CMSTestCase
 
@@ -6,24 +8,15 @@ from djangocms_internalsearch.test_utils.app_2.cms_config import (
     TestModel1Config,
     TestModel2Config,
 )
+from djangocms_internalsearch.test_utils.app_1.cms_config import TestModel5Config
 
 from .utils import TestCase
 
 
 class ClassFactoryUnitTestCase(TestCase):
 
-    def test_passing_just_string(self):
-        test_str = 'CMSPlugin'
-        with self.assertRaises(TypeError):
-            create_indexes(test_str)
-
-    def test_passing_string_list(self):
-        test_str_list = ['CMSPlugin', 'Page']
-        with self.assertRaises(TypeError):
-            create_indexes(test_str_list)
-
     def test_passing_classes(self):
-        test_class_list = [TestModel1Config.model, TestModel2Config.model]
+        test_class_list = [TestModel1Config, TestModel2Config]
         create_indexes(test_class_list)
         from djangocms_internalsearch.search_indexes import TestModel1Index
         self.assertEqual(TestModel1Index.__name__, 'TestModel1Index')
@@ -45,3 +38,23 @@ class InternalSearchIntegrationTestCase(CMSTestCase, TestCase):
             search_indexes.TestModel2Index
             search_indexes.TestModel3Index
             search_indexes.TestModel4Index
+
+
+class InternalSearchFieldMappingTestCase(TestCase):
+
+    def setUp(self):
+        app_registration.get_cms_extension_apps.cache_clear()
+        app_registration.get_cms_config_apps.cache_clear()
+
+    def test_field_mapping_dict(self):
+        test_class_list = [TestModel1Config]
+        create_indexes(test_class_list)
+        from djangocms_internalsearch.search_indexes import TestModel1Index
+        self.assertTrue('field1' in TestModel1Index.__dict__)
+        self.assertEqual('field1', TestModel1Index.__dict__['field1'].model_attr)
+
+        with self.assertRaises(FieldDoesNotExist):
+            create_indexes([TestModel5Config],)
+
+
+
