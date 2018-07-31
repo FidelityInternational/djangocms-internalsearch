@@ -9,45 +9,16 @@ from cms.models import Page
 class InternalSearchCMSExtension(CMSAppExtension):
 
     def __init__(self):
-        self.internalsearch_models = []
+        self.internalsearch_apps_config = []
 
     def configure_app(self, cms_config):
         if hasattr(cms_config, 'internalsearch_config_list'):
-            app_config_list = getattr(cms_config, 'internalsearch_config_list')
-            if isinstance(app_config_list, Iterable):
-                self.internalsearch_models.extend(
-                    app_config.model for app_config in app_config_list
-                )
+            internalsearch_config_list = getattr(cms_config, 'internalsearch_config_list')
+            if isinstance(internalsearch_config_list, Iterable):
+                self.internalsearch_apps_config.extend(internalsearch_config_list)
             else:
                 raise ImproperlyConfigured(
                     "InternalSearch configuration must be a Iterable object")
         else:
             raise ImproperlyConfigured(
-                "cms_config.py must have internalsearch_config_list attribute")
-
-
-class PageModelConfig:
-    """
-    Prepare fields from:
-    page_title > cms_title
-    slug > cms_title
-    site_id > cms_treenode__site_id
-    cmsplugin_type_array > cms_cmsplugin
-    text > cms_plugin rendered source in single string
-    html_source > html source of whole page
-    """
-    model = Page
-    fields = [
-        'page_title', 'slug', 'site_id', 'language', 'cmsplugin_type_array',
-        'text', 'created_by', 'changed_by', 'creation_date', 'changed_date',
-        'html_source',
-    ]
-
-    list_display = ('page_title', 'language',)
-    list_filter = ('language', 'site_id', 'changed_by')
-    index = None
-
-
-class CoreCMSAppConfig(CMSAppConfig):
-    djangocms_internalsearch_enabled = True
-    internalsearch_config_list = [PageModelConfig, ]
+                "cms_config.py must have internalsearch_app_config attribute")
