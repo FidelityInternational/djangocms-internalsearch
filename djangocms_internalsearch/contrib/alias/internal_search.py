@@ -63,7 +63,6 @@ class AliasContentConfig(BaseSearchConfig):
     model = AliasContent
 
     def prepare_text(self, obj):
-
         request = get_request(obj.language)
         context = RequestContext(request)
         if 'request' not in context:
@@ -72,13 +71,14 @@ class AliasContentConfig(BaseSearchConfig):
         toolbar = get_toolbar_from_request(request)
         renderer = toolbar.get_content_renderer()
         source = obj.placeholder
-        if source:
-            content = renderer.render_placeholder(
-                placeholder=source,
-                context=context,
-                editable=False,
-            )
-            return content
+        if not source:
+            return
+        content = renderer.render_placeholder(
+            placeholder=source,
+            context=context,
+            editable=False,
+        )
+        return content
 
     def prepare_url(self, obj):
         return obj.get_absolute_url()
