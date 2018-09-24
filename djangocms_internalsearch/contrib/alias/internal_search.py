@@ -71,9 +71,7 @@ class AliasContentConfig(BaseSearchConfig):
 
         toolbar = get_toolbar_from_request(request)
         renderer = toolbar.get_content_renderer()
-
         source = obj.placeholder
-
         if source:
             content = renderer.render_placeholder(
                 placeholder=source,
