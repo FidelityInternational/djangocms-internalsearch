@@ -14,7 +14,7 @@ Setting a config file
 *****************************************************************
 
 Any third-party app can use internalsearch functionality by adding 'cms_config.py`
-with a config class.
+with a config class that can be pass to internal search config class.
 
 For example:
 
@@ -32,7 +32,7 @@ For example:
 `intersearch_config_list` is a list of model config class.
 
 
-Let's say we have an app called 'publication' and a `Book` model that needs to integrate
+Let's say we have an app called `publication` which has `Book` and `Author` models as following and a `Book` model that needs to integrate
 with internal search.
 
 .. code-block:: python
@@ -53,9 +53,9 @@ with internal search.
         pubdate = models.DateField()
 
 
-To index the `Book` model,  `publication` app should provide `cms_config.py` with model configuration.
+To index the `Book` model,  `publication` app should provide `cms_config.py` with model configuration ('BookModelConfig` in below example).
 
-Config class can inherit from one of two base config class provided by at `djangocms_internalsearch.base.py`.
+Config class (`BookModelConfig`) can inherit from one of two base config class provided by at `djangocms_internalsearch.base.py`.
 `BaseSearchConfig` and `BaseVersionableSearchConfig`.
 
 A Model can be made versionable by installing 'djangocms_versioning' app and provide configuration for a particular model.
@@ -66,7 +66,7 @@ Internalsearch provide base configurations to caters versionable and non-versoin
 base config classes provide default attributes and configuration.
 
 
-You will need to configure the haystack indexes (internal search uses django-haystack under the hood) and the django admin UI through settings in the config class.
+You will need to configure the haystack indexes (internal search uses django-haystack under the hood) and the django admin UI through settings in the config class (`BookConfig` which can be pass to `InternalSearchConfig`) .
 Read more on index configuration at `haystack documentation <https://django-haystack.readthedocs.io/en/master/searchindex_api.html>`_
 
 Here is config class for the `Book` model:
@@ -79,7 +79,7 @@ Here is config class for the `Book` model:
 
     from publication.models import Book
 
-    class BookConfig(BaseSearchConfig):
+    class BookModelConfig(BaseSearchConfig):
 
         # admin configuration
         list_display = [
@@ -91,7 +91,7 @@ Here is config class for the `Book` model:
             "pubdate",
         ]
 
-        # Index configuration
+        # Haystack index configuration
         name = indexes.CharField(model_attr="name")
         pages = indexes.CharField(model_attr="pages")
         price = indexes.CharField(model_attr="price")
@@ -114,4 +114,4 @@ Here is config class for the `Book` model:
 
     class InternalSearchConfig(CMSAppConfig):
         djangocms_internalsearch_enabled = True
-        intersearch_config_list = [BookConfig, ]
+        intersearch_config_list = [BookModelConfig, ]
