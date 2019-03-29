@@ -44,9 +44,11 @@ elasticsearch and index name.
 
 HAYSTACK_CONNECTIONS is a required setting and an example configuration is provided below:
 
-`settings.py`
+
 
 .. code-block:: python
+
+    # `settings.py`
 
     HAYSTACK_CONNECTIONS = {
        'default': {

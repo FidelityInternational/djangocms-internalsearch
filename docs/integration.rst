@@ -21,7 +21,7 @@ For example:
 
 .. code-block:: python
 
-    #myapp_name.cms_config.py
+    # publication/cms_config.py
 
     from cms.app_base import CMSAppConfig
 
@@ -32,12 +32,12 @@ For example:
 `intersearch_config_list` is a list of model config class.
 
 
-Let's say we have an app called 'publication' and the a `Book` model that needs to integrate
+Let's say we have an app called 'publication' and a `Book` model that needs to integrate
 with internal search.
 
 .. code-block:: python
 
-    #publication.models.py
+    # publication/models.py
 
     class Author(models.Model):
         name = models.CharField(max_length=100)
@@ -69,11 +69,11 @@ base config classes provide default attributes and configuration.
 You will need to configure the haystack indexes (internal search uses django-haystack under the hood) and the django admin UI through settings in the config class.
 Read more on index configuration at `haystack documentation <https://django-haystack.readthedocs.io/en/master/searchindex_api.html>`_
 
-Here is config class for `Book` model:
+Here is config class for the `Book` model:
 
 .. code-block:: python
 
-    #publication.cms_config.py
+    # publication/cms_config.py
 
     from djangocms_internalsearch.base import BaseSearchConfig
 
